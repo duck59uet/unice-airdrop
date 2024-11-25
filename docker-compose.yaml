@@ -1,0 +1,35 @@
+version: "3.8"
+
+services:
+
+  postgres:
+    container_name: pumphub_postgres
+    image: postgres:14.0
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=X#wxpACw@c!WwUwb
+      - POSTGRES_DB=pumphub
+    ports:
+      - "5432:5432"
+    volumes:
+      - pumphub_db_data:/var/lib/postgresql/data
+
+  redis:
+    container_name: pumphub_redis
+    image: redis:latest
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - pumphub_redis_data:/data
+
+volumes:
+  pumphub_db_data:
+    driver: local
+  pumphub_redis_data:
+    driver: local
+
+networks:
+  default:
+    name: pumphub
