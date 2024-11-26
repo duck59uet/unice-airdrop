@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { ethers } from 'ethers';
 import { ConfigService } from '@nestjs/config';
-
-import { ResponseDto } from 'common/dtos';
 import { Web3LoginDTO } from './dto/web3-login.dto';
 import BigNumber from 'bignumber.js';
+import { ResponseDto } from '../../common/dtos/response.dto';
+import { ErrorMap } from '../../common/error.map';
 
 const ERC20_ABI = [
   'function balanceOf(address owner) view returns (uint256)',
@@ -18,7 +18,7 @@ export class AuthService {
   private uniceAddress: string;
   private privateKey: string;
   private UNICE_REQUIRED = 1000000000000000000000000;
-  private BNB_REQUIRED = 1000000000000000;
+  private BNB_REQUIRED = 0.01;
 
   constructor(private configService: ConfigService) {
     this.RPC_URL = this.configService.get<string>('RPC_URL');
@@ -50,8 +50,7 @@ export class AuthService {
       const balanceInUnice = await tokenContract.balanceOf(addr);
 
       if (
-        BigNumber(balanceInUnice).gt(this.UNICE_REQUIRED) &&
-        BigNumber(balanceInBnb).lt(this.BNB_REQUIRED)
+        true
       ) {
         const wallet = new ethers.Wallet(this.privateKey, provider);
         const balance = await provider.getBalance(wallet.address);
@@ -63,14 +62,16 @@ export class AuthService {
 
         const tx = {
           to: addr,
-          value: amountToSend, 
-          gasLimit: 21000, 
+          value: amountToSend,
+          gasLimit: 21000,
+          gasPrice: ethers.parseUnits("5", "gwei"),
         };
 
         const transactionResponse = await wallet.sendTransaction(tx);
 
         await transactionResponse.wait();
       }
+      return ResponseDto.response(ErrorMap.SUCCESSFUL, {});
     } catch (error) {
       return ResponseDto.responseError(AuthService.name, error);
     }
