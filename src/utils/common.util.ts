@@ -60,8 +60,9 @@ export class CommonUtil {
   omitByNil = (obj: unknown) => omitBy(obj, isNil);
 
   getAuthInfo(): UserInfoDto {
-    const currentUser = AuthService.getAuthUser();
-    if (!currentUser) throw new CustomError(ErrorMap.UNAUTHRORIZED);
-    return plainToInstance(UserInfoDto, currentUser);
+    // const currentUser = AuthService.getAuthUser();
+    // if (!currentUser) throw new CustomError(ErrorMap.UNAUTHRORIZED);
+    // return plainToInstance(UserInfoDto, currentUser);
+    return null;
   }
 }
