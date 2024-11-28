@@ -16,7 +16,7 @@ export class PoolController {
   constructor(private poolService: PoolService) {}
 
   @CommonGet({
-    url: URL_CONSTANTS.ADDRESS,
+    url: '',
     summary: 'Get active pools',
     apiOkResponseOptions: {
       status: 200,

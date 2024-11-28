@@ -16,7 +16,7 @@ export class PoolService {
   async getActicePools(): Promise<ResponseDto<any>> {
     try {
       const user = await this.poolRepo.repo.find({
-        where: { status: 2 },
+        where: { status: 1 },
       });
       return ResponseDto.response(ErrorMap.SUCCESSFUL, user);
     } catch (error) {
