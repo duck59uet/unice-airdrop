@@ -17,7 +17,7 @@ export class StakingDataController {
   constructor(private stakingDataService: StakingDataService) {}
 
   @CommonPost({
-    url: URL_CONSTANTS.ADDRESS,
+    url: '',
     summary: 'User staking',
     apiOkResponseOptions: {
       status: 200,
