@@ -9,6 +9,6 @@ export const URL_CONSTANTS = {
   CREATE_COLLECTION: 'create-collection',
   GET_COLLECTION_ID: '/:id',
   AUTH: 'auth',
-  ADDRESS: 'address',
+  ADDRESS: '/:address',
   REFFERAL: 'referral',
 };
