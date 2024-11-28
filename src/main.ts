@@ -41,5 +41,5 @@ void (async function bootstrap() {
   app.use(swaggerStats.getMiddleware({ swaggerSpec: document }));
   SwaggerModule.setup('documentation', app, document);
 
-  await app.listen(3001);
+  await app.listen(3000);
 })();
