@@ -45,7 +45,7 @@ export class UserRepository {
   }
 
   async initUser(addr: string): Promise<User> {
-    let user = await this.getUserByAddress(addr.toString());
+    let user = await this.getUserByAddress(addr);
 
     if (user !== null) return user;
 
