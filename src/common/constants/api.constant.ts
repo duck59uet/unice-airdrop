@@ -10,4 +10,5 @@ export const URL_CONSTANTS = {
   GET_COLLECTION_ID: '/:id',
   AUTH: 'auth',
   ADDRESS: 'address',
+  REFFERAL: 'referral',
 };

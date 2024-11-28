@@ -32,7 +32,7 @@ export class AuthService {
 
   async userLogIn(loginDTO: Web3LoginDTO): Promise<ResponseDto<any>> {
     try {
-      const { addr, message, signature, referralCode } = loginDTO;
+      const { addr, message, signature } = loginDTO;
 
       const signerAddress = ethers.verifyMessage(message, signature);
 
@@ -42,14 +42,6 @@ export class AuthService {
 
       if (!user) {
         user = await this.userRepo.initUser(addr);
-      }
-
-      if(referralCode) {
-        const referralUser = await this.userRepo.repo.findOne({where: {referralCode}});
-        if(referralUser) {
-          user.referredBy = referralUser.id;
-          await this.userRepo.repo.save(user);
-        }
       }
 
       if (!isAuthorize) {

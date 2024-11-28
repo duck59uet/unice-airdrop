@@ -4,6 +4,7 @@ import { ErrorMap } from '../../common/error.map';
 import { UserRepository } from './user.repository';
 import { User } from './entities/user.entity';
 import { CommonUtil } from '../../utils/common.util';
+import { ReferUserDto } from './dto/request/refer-user.dto';
 
 @Injectable()
 export class UserService {
@@ -16,8 +17,31 @@ export class UserService {
 
   async getUserInfoByAddress(address: string): Promise<ResponseDto<User>> {
     try {
-      const user = await this.userRepo.getUserByAddress(address);
+      const user = await this.userRepo.initUser(address);
       return ResponseDto.response(ErrorMap.SUCCESSFUL, user);
+    } catch (error) {
+      return ResponseDto.responseError(UserService.name, error);
+    }
+  }
+
+  async referUser(dto: ReferUserDto): Promise<ResponseDto<any>> {
+    try {
+      const referer = await this.userRepo.repo.findOne({
+        where: { referralCode: dto.referralCode },
+      });
+
+      if (!referer) {
+        return ResponseDto.responseError(
+          UserService.name,
+          'Invalid referral code',
+        );
+      }
+
+      const user = await this.userRepo.initUser(dto.addr);
+      user.referredBy = referer.id;
+      await this.userRepo.repo.save(user);
+
+      return ResponseDto.response(ErrorMap.SUCCESSFUL);
     } catch (error) {
       return ResponseDto.responseError(UserService.name, error);
     }

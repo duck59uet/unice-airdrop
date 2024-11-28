@@ -1,16 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString } from 'class-validator';
 
-export class Web3LoginDTO {
+export class ReferUserDto {
   @ApiProperty({ required: true })
   @IsString()
   addr: string;
 
-  @ApiProperty({ required: true })
+  @ApiProperty({ required: false })
   @IsString()
-  message: string;
-
-  @ApiProperty({ required: true })
-  @IsString()
-  signature: string;
+  referralCode: string;
 }
