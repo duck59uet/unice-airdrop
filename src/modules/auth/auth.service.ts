@@ -5,6 +5,7 @@ import { Web3LoginDTO } from './dto/web3-login.dto';
 import BigNumber from 'bignumber.js';
 import { ResponseDto } from '../../common/dtos/response.dto';
 import { ErrorMap } from '../../common/error.map';
+import { UserRepository } from '../user/user.repository';
 
 const ERC20_ABI = [
   'function balanceOf(address owner) view returns (uint256)',
@@ -20,7 +21,10 @@ export class AuthService {
   private UNICE_REQUIRED = 1000000000000000000000000;
   private BNB_REQUIRED = 0.01;
 
-  constructor(private configService: ConfigService) {
+  constructor(
+    private readonly userRepo: UserRepository,
+    private configService: ConfigService
+  ) {
     this.RPC_URL = this.configService.get<string>('RPC_URL');
     this.uniceAddress = this.configService.get<string>('UNICE_ADDRESS');
     this.privateKey = this.configService.get<string>('PRIVATE_KEY');
@@ -28,11 +32,25 @@ export class AuthService {
 
   async userLogIn(loginDTO: Web3LoginDTO): Promise<ResponseDto<any>> {
     try {
-      const { addr, message, signature } = loginDTO;
+      const { addr, message, signature, referralCode } = loginDTO;
 
       const signerAddress = ethers.verifyMessage(message, signature);
 
       const isAuthorize = signerAddress.toLowerCase() === addr.toLowerCase();
+
+      let user = await this.userRepo.getUserByAddress(addr);
+
+      if (!user) {
+        user = await this.userRepo.initUser(addr);
+      }
+
+      if(referralCode) {
+        const referralUser = await this.userRepo.repo.findOne({where: {referralCode}});
+        if(referralUser) {
+          user.referredBy = referralUser.id;
+          await this.userRepo.repo.save(user);
+        }
+      }
 
       if (!isAuthorize) {
         return ResponseDto.responseError(AuthService.name, 'Unauthorized');
