@@ -1,11 +1,16 @@
 import { CacheModule, Module } from '@nestjs/common';
 import { HttpModule } from '@nestjs/axios';
+import { SharedModule } from './shared/shared.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { BullModule } from '@nestjs/bull';
-import { SharedModule } from './shared/shared.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { JwtStrategy } from './modules/auth/jwt.strategy';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { CustomConfigService } from './shared/services';
+import { UserModule } from './modules/user/user.module';
+import { PoolModule } from './modules/pool/pool.module';
+import { StakingDataModule } from './modules/staking-data/staking-data.module';
 
 @Module({
   imports: [
@@ -31,14 +36,17 @@ import { JwtStrategy } from './modules/auth/jwt.strategy';
       }),
       inject: [ConfigService],
     }),
-    // TypeOrmModule.forRootAsync({
-    //   imports: [SharedModule],
-    //   useFactory: (customConfigService: CustomConfigService) =>
-    //     customConfigService.typeOrmConfig,
-    //   inject: [CustomConfigService],
-    // }),
+    TypeOrmModule.forRootAsync({
+      imports: [SharedModule],
+      useFactory: (customConfigService: CustomConfigService) =>
+        customConfigService.typeOrmConfig,
+      inject: [CustomConfigService],
+    }),
     ScheduleModule.forRoot(),
     AuthModule,
+    UserModule,
+    PoolModule,
+    StakingDataModule,
   ],
   providers: [JwtStrategy],
   controllers: [],
