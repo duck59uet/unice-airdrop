@@ -29,7 +29,7 @@ void (async function bootstrap() {
 
   // setup swagger
   const config = new DocumentBuilder()
-    .setTitle('Pumpfun API')
+    .setTitle('Unice API')
     .setVersion('v1')
     .addServer('/')
     .addServer(configService.get<string>('SWAGGER_PATH'))

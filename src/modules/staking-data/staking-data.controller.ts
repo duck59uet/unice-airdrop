@@ -4,7 +4,7 @@ import {
   CONTROLLER_CONSTANTS,
   URL_CONSTANTS,
 } from '../../common/constants/api.constant';
-import { CommonAuthPost } from '../../decorators/common.decorator';
+import { CommonPost } from '../../decorators/common.decorator';
 import { ResponseDto } from '../../common/dtos/response.dto';
 import { StakingDataService } from './staking-data.service';
 import { CreateUserStakingPoolDto } from './dto/create-update-staking-pool.dto';
@@ -16,7 +16,7 @@ export class StakingDataController {
 
   constructor(private stakingDataService: StakingDataService) {}
 
-  @CommonAuthPost({
+  @CommonPost({
     url: URL_CONSTANTS.ADDRESS,
     summary: 'User staking',
     apiOkResponseOptions: {
@@ -30,4 +30,6 @@ export class StakingDataController {
     this.logger.log('========== User staking ==========');
     return this.stakingDataService.userStaking(stakingDto);
   }
+
+
 }
