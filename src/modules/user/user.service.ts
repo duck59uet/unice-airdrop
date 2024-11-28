@@ -15,9 +15,17 @@ export class UserService {
     this.logger.log('============== Constructor User Service ==============');
   }
 
-  async getUserInfoByAddress(address: string): Promise<ResponseDto<User>> {
+  async getUserInfoByAddress(address: string): Promise<ResponseDto<any>> {
     try {
       const user = await this.userRepo.initUser(address);
+
+      if (!user.referredBy) {
+        const referer = await this.userRepo.repo.findOne({
+          where: { id: user.referredBy },
+        });
+
+        user.referredBy = referer.wallet;
+      }
       return ResponseDto.response(ErrorMap.SUCCESSFUL, user);
     } catch (error) {
       return ResponseDto.responseError(UserService.name, error);

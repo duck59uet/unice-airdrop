@@ -30,6 +30,4 @@ export class StakingDataController {
     this.logger.log('========== User staking ==========');
     return this.stakingDataService.userStaking(stakingDto);
   }
-
-
 }
