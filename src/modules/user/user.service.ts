@@ -19,7 +19,7 @@ export class UserService {
     try {
       const user = await this.userRepo.initUser(address);
 
-      if (!user.referredBy) {
+      if (user.referredBy) {
         const referer = await this.userRepo.repo.findOne({
           where: { id: user.referredBy },
         });
