@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { IsNull, Repository } from 'typeorm';
 import * as randomstring from 'randomstring';
 import { User } from './entities/user.entity';
+import { StakingDataEntity } from '../../modules/staking-data/entities/staking-data.entity';
 
 
 @Injectable()
@@ -54,5 +55,19 @@ export class UserRepository {
     user.referralCode = referralCode.toUpperCase();
     user.wallet = addr;
     return await this.repo.save(user);
+  }
+
+  async getUserStaking(address: string): Promise<any> {
+    return this.repo
+      .createQueryBuilder('users')
+      .leftJoin(User, 'ref', 'users.id = ref.referredBy')
+      .leftJoin(StakingDataEntity, 'staking', 'ref.wallet = staking.wallet')
+      .select([
+        'COUNT(DISTINCT ref.id) as total_referrer',
+        'SUM(staking.amount) as total_staked'
+      ])
+      .where('users.wallet = :address', { address })
+      .groupBy('users.id')
+      .execute();
   }
 }

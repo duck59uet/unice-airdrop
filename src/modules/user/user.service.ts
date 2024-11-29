@@ -22,13 +22,12 @@ export class UserService {
     try {
       let user: any = await this.userRepo.initUser(address);
 
-      const stakingData = await this.stakingDataRepo.getUserStakingData(
+      const stakingData = await this.userRepo.getUserStaking(
         address,
       );
 
-      user.totalStaked = stakingData[0]?.total_staked || 0;
-      user.rank = stakingData[0]?.rank || null;
-      user.totalAmountReferrer = stakingData[0]?.total_amount_referrer || 0;
+      user.friendRefer = stakingData[0]?.total_referrer || 0;
+      user.totalFriendStaked = stakingData[0]?.total_staked || 0;
 
       if (user.referredBy) {
         const referer = await this.userRepo.repo.findOne({
