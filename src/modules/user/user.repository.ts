@@ -3,7 +3,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { IsNull, Repository } from 'typeorm';
 import * as randomstring from 'randomstring';
 import { User } from './entities/user.entity';
-import { StakingDataEntity } from '../../modules/staking-data/entities/staking-data.entity';
 
 @Injectable()
 export class UserRepository {
@@ -57,25 +56,15 @@ export class UserRepository {
   }
 
   async getUserStaking(address: string): Promise<any> {
-    return this.repo.query(`WITH ranked_staking AS (
-    SELECT
-        "staking_data"."wallet",
-        RANK() OVER (ORDER BY SUM("staking_data"."amount") DESC) AS rank
-    FROM
-        "staking_data"
-    WHERE
-        "staking_data"."deletedAt" IS NULL
-    GROUP BY
-        "staking_data"."wallet"
-    )
-SELECT
-    rs.rank,
-    COUNT(DISTINCT ref.id) as total_referrer,
-    SUM(sd.amount) as total_staked
-FROM ranked_staking rs inner join users u on rs.wallet = u.wallet
-left join users ref on u.id = ref."referredBy"
+    return this.repo.query(
+      `WITH user_data AS (select u.wallet as self, COALESCE(sum(ssd.amount), 0) as self_stake, sum(sd.amount) child_staked,
+count(distinct ref.id) as friend from users u left join users ref on u.id = ref."referredBy"
 left join staking_data sd on ref.wallet = sd.wallet
-where rs.wallet = '${address}'
-group by rs.wallet, rs.rank`);
+left join staking_data ssd on u.wallet = ssd.wallet
+group by u.wallet, ref.wallet)
+select self, child_staked, friend, self_stake,  RANK() OVER (ORDER BY self_stake DESC) AS stake_rank from user_data
+where self = $1`,
+      [address],
+    );
   }
 }

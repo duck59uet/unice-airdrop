@@ -9,7 +9,7 @@ export class StakingDataEntity extends BaseEntityAutoId {
   @Column({ name: 'wallet' })
   wallet: string;
 
-  @Column({ name: 'amount' })
+  @Column({ name: 'amount', type: 'float4', nullable: true })
   amount: number;
 
   @Column({ name: 'is_staking' })
