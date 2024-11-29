@@ -76,7 +76,7 @@ SELECT
     self_stake,
     RANK() OVER (ORDER BY self_stake DESC) AS stake_rank
 FROM (
-         SELECT * FROM user_data WHERE self = '${address}'
+         SELECT * FROM user_data WHERE self = $1
      ) filtered_data;`,
       [address],
     );
