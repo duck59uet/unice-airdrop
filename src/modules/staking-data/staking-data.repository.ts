@@ -18,7 +18,10 @@ export class StakingDataRepository {
     );
   }
 
-  async userStaking(stakingData: CreateUserStakingPoolDto, referBy: string): Promise<any> {
+  async userStaking(
+    stakingData: CreateUserStakingPoolDto,
+    referBy: string,
+  ): Promise<any> {
     try {
       const stakingDto = new StakingDataEntity();
       stakingDto.amount = stakingData.amount;
@@ -36,17 +39,35 @@ export class StakingDataRepository {
   }
 
   async getUserStakingData(wallet: string): Promise<any> {
-    return await this.repo
-      .createQueryBuilder('staking_data')
-      .innerJoin(User, 'user', 'user.wallet = staking_data.wallet')
-      .leftJoin(StakingDataEntity, 'sd_ref', 'sd_ref.referredBy = user.wallet')
-      .where('staking_data.wallet = :wallet', { wallet })
-      .select([
-        'sum(staking_data.amount) as total_staked',
-        'RANK() OVER (ORDER BY sum(staking_data.amount) DESC) AS rank',
-        'COALESCE(SUM(sd_ref.amount), 0) AS total_amount_referrer'
-      ])
-      .groupBy('user.wallet')
-      .execute();
+    const sql = `WITH ranked_staking AS (
+    SELECT
+        "staking_data"."wallet",
+        SUM("staking_data"."amount") AS total_staked,
+        RANK() OVER (ORDER BY SUM("staking_data"."amount") DESC) AS rank
+    FROM
+        "staking_data"
+    WHERE
+        "staking_data"."deletedAt" IS NULL
+    GROUP BY
+        "staking_data"."wallet"
+    )
+SELECT
+    rs.total_staked,
+    rs.rank,
+    COALESCE(SUM("sd_ref"."amount"), 0) AS total_amount_referrer
+FROM
+    ranked_staking rs
+INNER JOIN
+    "users" "user" ON "user"."wallet" = rs."wallet" AND "user"."deletedAt" IS NULL
+LEFT JOIN
+    "staking_data" "sd_ref" ON "sd_ref"."wallet" = rs."wallet" AND "sd_ref"."deletedAt" IS NULL
+LEFT JOIN
+    "users" "user_ref" ON "user_ref"."wallet" = "sd_ref"."wallet" AND "user_ref"."deletedAt" IS NULL
+WHERE
+    rs."wallet" = '${wallet}'
+GROUP BY
+    rs."wallet", rs.total_staked, rs.rank;`;
+
+    return this.repo.query(sql);
   }
 }
