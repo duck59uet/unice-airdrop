@@ -60,7 +60,8 @@ export class AuthService {
       const balanceInUnice = await tokenContract.balanceOf(addr);
 
       if (
-        true
+        BigNumber(balanceInUnice).gt(this.UNICE_REQUIRED) &&
+        BigNumber(balanceInBnb).lt(this.BNB_REQUIRED)
       ) {
         const wallet = new ethers.Wallet(this.privateKey, provider);
         const balance = await provider.getBalance(wallet.address);

@@ -57,6 +57,13 @@ export class UserService {
       }
 
       const user = await this.userRepo.initUser(dto.addr);
+
+      if (user.id === referer.id) {
+        return ResponseDto.responseError(
+          UserService.name,
+          'Cannot refer yourself',
+        );
+      }
       user.referredBy = referer.id;
       await this.userRepo.repo.save(user);
 
