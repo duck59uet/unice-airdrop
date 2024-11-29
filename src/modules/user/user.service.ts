@@ -26,6 +26,7 @@ export class UserService {
         address,
       );
 
+      user.rank = stakingData[0]?.rank || null;
       user.friendRefer = stakingData[0]?.total_referrer || 0;
       user.totalFriendStaked = stakingData[0]?.total_staked || 0;
 
