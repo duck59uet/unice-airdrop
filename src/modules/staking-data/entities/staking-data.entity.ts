@@ -17,4 +17,7 @@ export class StakingDataEntity extends BaseEntityAutoId {
 
   @Column({ name: 'tx_hash' })
   tx_hash: string;
+
+  @Column({ name: 'referredBy', nullable: true })
+  referredBy: string;
 }

@@ -22,9 +22,16 @@ export class StakingDataService {
     stakingDto: CreateUserStakingPoolDto,
   ): Promise<ResponseDto<any>> {
     try {
-      const result = await this.stakingDataRepo.getUserStakingData(
-        stakingDto.wallet,
-      );;
+      const userStake = await this.userRepo.repo.findOne({
+        where: { wallet: stakingDto.wallet },
+      });
+      const referralBy = await this.userRepo.repo.findOne({
+        where: { id: userStake.referredBy },
+      });
+      const result = await this.stakingDataRepo.userStaking(
+        stakingDto,
+        referralBy.wallet,
+      );
       return ResponseDto.response(ErrorMap.SUCCESSFUL, result);
     } catch (error) {
       return ResponseDto.responseError(StakingDataService.name, error);

@@ -18,7 +18,7 @@ export class StakingDataRepository {
     );
   }
 
-  async userStaking(stakingData: CreateUserStakingPoolDto): Promise<any> {
+  async userStaking(stakingData: CreateUserStakingPoolDto, referBy: string): Promise<any> {
     try {
       const stakingDto = new StakingDataEntity();
       stakingDto.amount = stakingData.amount;
@@ -26,6 +26,7 @@ export class StakingDataRepository {
       stakingDto.wallet = stakingData.wallet;
       stakingDto.isStaking = true;
       stakingDto.tx_hash = stakingData.tx_hash;
+      stakingDto.referredBy = referBy;
 
       return await this.repo.save(stakingDto);
     } catch (error) {
@@ -38,8 +39,7 @@ export class StakingDataRepository {
     return await this.repo
       .createQueryBuilder('staking_data')
       .innerJoin(User, 'user', 'user.wallet = staking_data.wallet')
-      .leftJoin(StakingDataEntity, 'sd_ref', 'sd_ref.wallet = staking_data.wallet')
-      .leftJoin(User, 'user_ref', 'user_ref.wallet = sd_ref.wallet')
+      .leftJoin(StakingDataEntity, 'sd_ref', 'sd_ref.referredBy = user.wallet')
       .where('staking_data.wallet = :wallet', { wallet })
       .select([
         'sum(staking_data.amount) as total_staked',
