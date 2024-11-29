@@ -26,9 +26,9 @@ export class UserService {
         address,
       );
 
-      user.totalStaked = stakingData[0].total_staked;
-      user.rank = stakingData[0].rank;
-      user.totalAmountReferrer = stakingData[0].total_amount_referrer;
+      user.totalStaked = stakingData[0]?.total_staked || 0;
+      user.rank = stakingData[0]?.rank || null;
+      user.totalAmountReferrer = stakingData[0]?.total_amount_referrer || 0;
 
       if (user.referredBy) {
         const referer = await this.userRepo.repo.findOne({
