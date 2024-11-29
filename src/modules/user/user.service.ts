@@ -2,22 +2,33 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ResponseDto } from '../../common/dtos/response.dto';
 import { ErrorMap } from '../../common/error.map';
 import { UserRepository } from './user.repository';
-import { User } from './entities/user.entity';
 import { CommonUtil } from '../../utils/common.util';
 import { ReferUserDto } from './dto/request/refer-user.dto';
+import { StakingDataRepository } from '../../modules/staking-data/staking-data.repository';
 
 @Injectable()
 export class UserService {
   private readonly logger = new Logger(UserService.name);
   private readonly commonUtil: CommonUtil = new CommonUtil();
 
-  constructor(private userRepo: UserRepository) {
+  constructor(
+    private userRepo: UserRepository,
+    private stakingDataRepo: StakingDataRepository,
+  ) {
     this.logger.log('============== Constructor User Service ==============');
   }
 
   async getUserInfoByAddress(address: string): Promise<ResponseDto<any>> {
     try {
-      const user = await this.userRepo.initUser(address);
+      let user: any = await this.userRepo.initUser(address);
+
+      const stakingData = await this.stakingDataRepo.getUserStakingData(
+        address,
+      );
+
+      user.totalStaked = stakingData[0].total_staked;
+      user.rank = stakingData[0].rank;
+      user.totalAmountReferrer = stakingData[0].total_amount_referrer;
 
       if (user.referredBy) {
         const referer = await this.userRepo.repo.findOne({

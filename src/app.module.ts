@@ -49,6 +49,5 @@ import { StakingDataModule } from './modules/staking-data/staking-data.module';
     StakingDataModule,
   ],
   providers: [JwtStrategy],
-  controllers: [],
 })
 export class AppModule {}

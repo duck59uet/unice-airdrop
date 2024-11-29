@@ -3,11 +3,11 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { StakingDataEntity } from './entities/staking-data.entity';
 import { CreateUserStakingPoolDto } from './dto/create-update-staking-pool.dto';
-
+import { User } from '../../modules/user/entities/user.entity';
 
 @Injectable()
-export class StakingdataRepository {
-  public readonly logger = new Logger(StakingdataRepository.name);
+export class StakingDataRepository {
+  public readonly logger = new Logger(StakingDataRepository.name);
 
   constructor(
     @InjectRepository(StakingDataEntity)
@@ -32,5 +32,21 @@ export class StakingdataRepository {
       this.logger.error(error);
       throw error;
     }
+  }
+
+  async getUserStakingData(wallet: string): Promise<any> {
+    return await this.repo
+      .createQueryBuilder('staking_data')
+      .innerJoin(User, 'user', 'user.wallet = staking_data.wallet')
+      .leftJoin(StakingDataEntity, 'sd_ref', 'sd_ref.wallet = staking_data.wallet')
+      .leftJoin(User, 'user_ref', 'user_ref.wallet = sd_ref.wallet')
+      .where('staking_data.wallet = :wallet', { wallet })
+      .select([
+        'sum(staking_data.amount) as total_staked',
+        'RANK() OVER (ORDER BY sum(staking_data.amount) DESC) AS rank',
+        'COALESCE(SUM(sd_ref.amount), 0) AS total_amount_referrer'
+      ])
+      .groupBy('user.wallet')
+      .execute();
   }
 }
