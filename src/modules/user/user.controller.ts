@@ -61,4 +61,19 @@ export class UserController {
     this.logger.log('========== Get Get frens price ==========');
     return this.userService.getFrensPrice();
   }
+
+  @CommonGet({
+    url: '/stake/leaderboard',
+    summary: 'Get staking leaderboard',
+    apiOkResponseOptions: {
+      status: 200,
+      type: ResponseDto,
+      description: 'Get staking leaderboard',
+      schema: {},
+    },
+  })
+  async getLeaderboard() {
+    this.logger.log('========== Get staking leaderboard ==========');
+    return this.userService.getLeaderboard();
+  }
 }

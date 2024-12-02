@@ -3,7 +3,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { StakingDataEntity } from './entities/staking-data.entity';
 import { CreateUserStakingPoolDto } from './dto/create-update-staking-pool.dto';
-import { User } from '../../modules/user/entities/user.entity';
 
 @Injectable()
 export class StakingDataRepository {

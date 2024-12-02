@@ -101,4 +101,44 @@ WHERE
       [address],
     );
   }
+
+  async getLeaderboard(): Promise<any> {
+    return this.repo.query(
+      `WITH user_data AS (
+    SELECT 
+        u.wallet AS self, 
+        COALESCE(SUM(ssd.amount), 0) AS self_stake, 
+        SUM(sd.amount) AS child_staked, 
+        COUNT(DISTINCT ref.id) AS friend
+    FROM 
+        users u
+    LEFT JOIN 
+        users ref ON u.id = ref."referredBy"
+    LEFT JOIN 
+        staking_data sd ON ref.wallet = sd.wallet
+    LEFT JOIN 
+        staking_data ssd ON u.wallet = ssd.wallet
+    GROUP BY 
+        u.wallet
+),
+ranked_data AS (
+    SELECT 
+        self, 
+        child_staked, 
+        friend,
+        RANK() OVER (ORDER BY child_staked DESC) as rank
+    FROM 
+        user_data
+    WHERE
+        child_staked > 0
+)
+SELECT 
+    self, 
+    child_staked, 
+    friend, 
+    rank
+FROM 
+    ranked_data`,
+    );
+  }
 }

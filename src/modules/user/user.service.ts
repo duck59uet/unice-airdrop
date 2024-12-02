@@ -82,4 +82,13 @@ export class UserService {
       return ResponseDto.responseError(UserService.name, error);
     }
   }
+
+  async getLeaderboard(): Promise<ResponseDto<any>> {
+    try {
+      const result = await this.userRepo.getLeaderboard();
+      return ResponseDto.response(ErrorMap.SUCCESSFUL, result);
+    } catch (error) {
+      return ResponseDto.responseError(UserService.name, error);
+    }
+  }
 }
