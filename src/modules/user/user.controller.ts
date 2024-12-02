@@ -46,4 +46,19 @@ export class UserController {
     this.logger.log('========== Refer user ==========');
     return this.userService.referUser(dto);
   }
+
+  @CommonGet({
+    url: URL_CONSTANTS.PRICE,
+    summary: 'Get frens price',
+    apiOkResponseOptions: {
+      status: 200,
+      type: ResponseDto,
+      description: 'Get frens price',
+      schema: {},
+    },
+  })
+  async getFrensPrice() {
+    this.logger.log('========== Get Get frens price ==========');
+    return this.userService.getFrensPrice();
+  }
 }

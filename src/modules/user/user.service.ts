@@ -5,6 +5,7 @@ import { UserRepository } from './user.repository';
 import { CommonUtil } from '../../utils/common.util';
 import { ReferUserDto } from './dto/request/refer-user.dto';
 import { StakingDataRepository } from '../../modules/staking-data/staking-data.repository';
+import axios from 'axios';
 
 @Injectable()
 export class UserService {
@@ -68,6 +69,15 @@ export class UserService {
       await this.userRepo.repo.save(user);
 
       return ResponseDto.response(ErrorMap.SUCCESSFUL);
+    } catch (error) {
+      return ResponseDto.responseError(UserService.name, error);
+    }
+  }
+
+  async getFrensPrice(): Promise<ResponseDto<any>> {
+    try {
+      const result = await axios.get('https://contract-openapi.weex.com/api/spot/v1/market/ticker?symbol=FRENSUSDT_SPBL');
+      return ResponseDto.response(ErrorMap.SUCCESSFUL, result.data.data);
     } catch (error) {
       return ResponseDto.responseError(UserService.name, error);
     }
