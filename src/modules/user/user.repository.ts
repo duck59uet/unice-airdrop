@@ -57,46 +57,55 @@ export class UserRepository {
 
   async getUserStaking(address: string): Promise<any> {
     return this.repo.query(
-      `WITH user_data AS (
-    SELECT 
-        u.wallet AS self, 
-        COALESCE(SUM(ssd.amount), 0) AS self_stake, 
-        SUM(sd.amount) AS child_staked, 
+      `WITH aggregated_stakes AS (
+    SELECT
+        wallet,
+        SUM(amount) AS total_stake
+    FROM
+        staking_data
+    GROUP BY
+        wallet
+),
+user_data AS (
+    SELECT
+        u.wallet AS self,
+        COALESCE(ssd.total_stake, 0) AS self_stake,
+        COALESCE(SUM(asd.total_stake), 0) AS child_staked,
         COUNT(DISTINCT ref.id) AS friend
-    FROM 
+    FROM
         users u
-    LEFT JOIN 
+    LEFT JOIN
         users ref ON u.id = ref."referredBy"
-    LEFT JOIN 
-        staking_data sd ON ref.wallet = sd.wallet
-    LEFT JOIN 
-        staking_data ssd ON u.wallet = ssd.wallet
-    GROUP BY 
-        u.wallet
+    LEFT JOIN
+        aggregated_stakes asd ON ref.wallet = asd.wallet
+    LEFT JOIN
+        aggregated_stakes ssd ON u.wallet = ssd.wallet
+    GROUP BY
+        u.wallet, ssd.total_stake
 ),
 ranked_data AS (
-    SELECT 
-        self, 
-        self_stake, 
-        child_staked, 
+    SELECT
+        self,
+        self_stake,
+        child_staked,
         friend,
         -- Chỉ tính rank cho những user có self_stake > 0
-        CASE 
+        CASE
             WHEN self_stake > 0 THEN RANK() OVER (ORDER BY self_stake DESC)
             ELSE NULL
         END AS stake_rank
-    FROM 
+    FROM
         user_data
 )
-SELECT 
-    self, 
-    child_staked, 
-    friend, 
-    self_stake, 
+SELECT
+    self,
+    child_staked,
+    friend,
+    self_stake,
     stake_rank
-FROM 
+FROM
     ranked_data
-WHERE 
+WHERE
     self = $1`,
       [address],
     );
@@ -104,40 +113,53 @@ WHERE
 
   async getLeaderboard(): Promise<any> {
     return this.repo.query(
-      `WITH user_data AS (
-    SELECT 
-        u.wallet AS self, 
-        COALESCE(SUM(ssd.amount), 0) AS self_stake, 
-        SUM(sd.amount) AS child_staked, 
+      `WITH aggregated_stakes AS (
+    SELECT
+        wallet,
+        SUM(amount) AS total_stake
+    FROM
+        staking_data
+    GROUP BY
+        wallet
+),
+user_data AS (
+    SELECT
+        u.wallet AS self,
+        COALESCE(ssd.total_stake, 0) AS self_stake,
+        COALESCE(SUM(asd.total_stake), 0) AS child_staked,
         COUNT(DISTINCT ref.id) AS friend
-    FROM 
+    FROM
         users u
-    LEFT JOIN 
+    LEFT JOIN
         users ref ON u.id = ref."referredBy"
-    LEFT JOIN 
-        staking_data sd ON ref.wallet = sd.wallet
-    LEFT JOIN 
-        staking_data ssd ON u.wallet = ssd.wallet
-    GROUP BY 
-        u.wallet
+    LEFT JOIN
+        aggregated_stakes asd ON ref.wallet = asd.wallet
+    LEFT JOIN
+        aggregated_stakes ssd ON u.wallet = ssd.wallet
+    GROUP BY
+        u.wallet, ssd.total_stake
 ),
 ranked_data AS (
-    SELECT 
-        self, 
-        child_staked, 
+    SELECT
+        self,
+        self_stake,
+        child_staked,
         friend,
-        RANK() OVER (ORDER BY child_staked DESC) as rank
-    FROM 
+        -- Chỉ tính rank cho những user có self_stake > 0
+        CASE
+            WHEN self_stake > 0 THEN RANK() OVER (ORDER BY self_stake DESC)
+            ELSE NULL
+        END AS stake_rank
+    FROM
         user_data
-    WHERE
-        child_staked > 0
 )
-SELECT 
-    self, 
-    child_staked, 
-    friend, 
-    rank
-FROM 
+SELECT
+    self,
+    child_staked,
+    friend,
+    self_stake,
+    stake_rank
+FROM
     ranked_data`,
     );
   }
