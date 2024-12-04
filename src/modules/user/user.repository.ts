@@ -160,7 +160,11 @@ SELECT
     self_stake,
     stake_rank
 FROM
-    ranked_data`,
+    ranked_data
+WHERE
+    child_staked > 0
+ORDER BY
+    stake_rank`,
     );
   }
 }
