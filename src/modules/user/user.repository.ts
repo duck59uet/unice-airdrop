@@ -164,7 +164,7 @@ FROM
 WHERE
     child_staked > 0
 ORDER BY
-    stake_rank`,
+    stake_rank ASC`,
     );
   }
 }
