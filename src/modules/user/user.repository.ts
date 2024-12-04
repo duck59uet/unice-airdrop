@@ -147,7 +147,7 @@ ranked_data AS (
         friend,
         -- Chỉ tính rank cho những user có self_stake > 0
         CASE
-            WHEN self_stake > 0 THEN RANK() OVER (ORDER BY self_stake DESC)
+            WHEN child_staked > 0 THEN RANK() OVER (ORDER BY child_staked DESC)
             ELSE NULL
         END AS stake_rank
     FROM
