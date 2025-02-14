@@ -29,7 +29,6 @@ export class CustomConfigService {
       migrationsRun: true,
       synchronize: true,
       logging: this.nodeEnv === 'development',
-      namingStrategy: new PascalCaseStrategy(),
       autoLoadEntities: true,
       poolSize: 500,
       extra: {

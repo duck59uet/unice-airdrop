@@ -4,7 +4,7 @@ import { Exclude } from 'class-transformer';
 
 @Entity({ name: 'users' })
 export class User extends BaseEntityAutoId {
-  @Column({ unique: true, nullable: false })
+  @Column({ unique: true, nullable: true })
   wallet: string;
 
   @Column({ nullable: true, type: 'bigint' })
