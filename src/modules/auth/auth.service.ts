@@ -18,7 +18,7 @@ export class AuthService {
   private RPC_URL: string;
   private uniceAddress: string;
   private privateKey: string;
-  private UNICE_REQUIRED = 1000000000000000000;
+  private UNICE_REQUIRED = 100000000000000000000000;
   private BNB_REQUIRED = 0.001;
 
   constructor(
@@ -60,8 +60,8 @@ export class AuthService {
       const balanceInUnice = await tokenContract.balanceOf(addr);
 
       if (
-        BigNumber(balanceInUnice).gt(this.UNICE_REQUIRED) &&
-        BigNumber(balanceInBnb).lt(this.BNB_REQUIRED)
+        BigNumber(balanceInUnice.toString()).gt(this.UNICE_REQUIRED.toString()) &&
+        BigNumber(balanceInBnb).lt(this.BNB_REQUIRED.toString())
       ) {
         const wallet = new ethers.Wallet(this.privateKey, provider);
         const balance = await provider.getBalance(wallet.address);
