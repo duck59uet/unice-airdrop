@@ -18,7 +18,7 @@ export class AuthService {
   private RPC_URL: string;
   private uniceAddress: string;
   private privateKey: string;
-  private UNICE_REQUIRED = 100000000000000000000000;
+  private UNICE_REQUIRED = 1000000000000000000;
   private BNB_REQUIRED = 0.001;
 
   constructor(
